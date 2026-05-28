@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toesjablox - Coming Soon</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .glass-container {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .glass-card {
+            position: relative;
+            padding: 3.5rem 4rem;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.08) 0%,
+                rgba(255, 255, 255, 0.02) 50%,
+                rgba(255, 255, 255, 0.06) 100%
+            );
+            backdrop-filter: blur(40px) saturate(1.5);
+            -webkit-backdrop-filter: blur(40px) saturate(1.5);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow:
+                0 8px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        /* Top light reflection line */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 75%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        }
+
+        /* Bottom light reflection line */
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        }
+
+        /* Inner glow */
+        .glass-inner-glow {
+            position: absolute;
+            inset: 0;
+            border-radius: 40px;
+            background: radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .text-content {
+            position: relative;
+            text-align: center;
+        }
+
+        .title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 10px rgba(255, 255, 255, 0.15));
+            line-height: 1.1;
+            user-select: none;
+        }
+
+        .divider {
+            margin: 1.25rem auto 1.5rem;
+            height: 1px;
+            width: 50%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            user-select: none;
+        }
+
+        @media (min-width: 640px) {
+            .glass-card {
+                padding: 4.5rem 6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="blobCanvas"></canvas>
+
+    <div class="glass-container">
+        <div class="glass-card">
+            <div class="glass-inner-glow"></div>
+            <div class="text-content">
+                <h1 class="title">toesjablox</h1>
+                <div class="divider"></div>
+                <p class="subtitle">coming soon</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('blobCanvas');
+        const ctx = canvas.getContext('2d');
+        let time = 0;
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const blobs = [];
+        for (let i = 0; i < 6; i++) {
+            blobs.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                baseRadius: 100 + Math.random() * 200,
+                speedX: (Math.random() - 0.5) * 0.4,
+                speedY: (Math.random() - 0.5) * 0.4,
+                phase: Math.random() * Math.PI * 2,
+                amplitude: 50 + Math.random() * 80,
+            });
+        }
+
+        function animate() {
+            time += 0.008;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dark background
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // White / light glow blobs
+            for (const blob of blobs) {
+                blob.x += blob.speedX + Math.sin(time + blob.phase) * 0.5;
+                blob.y += blob.speedY + Math.cos(time + blob.phase) * 0.5;
+
+                if (blob.x < -blob.baseRadius) blob.x = canvas.width + blob.baseRadius;
+                if (blob.x > canvas.width + blob.baseRadius) blob.x = -blob.baseRadius;
+                if (blob.y < -blob.baseRadius) blob.y = canvas.height + blob.baseRadius;
+                if (blob.y > canvas.height + blob.baseRadius) blob.y = -blob.baseRadius;
+
+                const r = Math.max(1, blob.baseRadius + Math.sin(time * 1.5 + blob.phase) * blob.amplitude);
+
+                const gradient = ctx.createRadialGradient(blob.x, blob.y, 0, blob.x, blob.y, r);
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 0.12)');
+                gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.05)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                ctx.beginPath();
+                ctx.arc(blob.x, blob.y, r, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            // Second layer - subtle darker blobs
+            for (const blob of blobs) {
+                const offsetX = Math.sin(time * 0.7 + blob.phase) * 60;
+                const offsetY = Math.cos(time * 0.5 + blob.phase) * 60;
+                const r = Math.max(1, blob.baseRadius * 0.7 + Math.sin(time * 2 + blob.phase) * 30);
+
+                const gradient = ctx.createRadialGradient(
+                    blob.x + offsetX, blob.y + offsetY, 0,
+                    blob.x + offsetX, blob.y + offsetY, r
+                );
+                gradient.addColorStop(0, 'rgba(200, 200, 200, 0.06)');
+                gradient.addColorStop(1, 'rgba(200, 200, 200, 0)');
+
+                ctx.beginPath();
+                ctx.arc(blob.x + offsetX, blob.y + offsetY, r, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
